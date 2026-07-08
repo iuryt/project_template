@@ -1,0 +1,16 @@
+# package data
+
+**Small, static files that ship *with the library*** — lookup tables, reference
+coefficients, fixed palettes, station metadata. Committed to git and bundled on
+`pip install`, so modules can load them regardless of where the repo lives:
+
+```python
+from importlib.resources import files
+import {{ package_name }}
+
+table = files("{{ package_name }}.data").joinpath("stations.csv").read_text()
+```
+
+**Not** the place for datasets. Large, machine-specific, gitignored data lives in the
+top-level `data/` (`raw/`, `external/`, `processed/`) and is reached via
+`{{ package_name }}.config` (`RAW`, `EXTERNAL`, `PROCESSED`). Keep this directory tiny.

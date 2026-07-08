@@ -1,0 +1,144 @@
+# AGENTS.md — {{ project_name }}
+
+Instructions for AI agents (and humans) working in this repo. This is the single
+source of truth; `CLAUDE.md` just imports it via `@AGENTS.md`.
+
+{{ description }}
+
+---
+
+## TL;DR for agents
+
+- **Environment is pixi.** Run everything through `pixi run <task>`. Never `pip install`
+  into the system; add deps with `pixi add <pkg>`.
+- **Reusable logic lives in `src/{{ package_name }}/`** and is imported everywhere.
+  Runnable scripts (`preprocessing/`, `analysis/`) are thin: they import the library,
+  read `data/processed/`, and write `figures/`.
+- **Dependencies point inward.** `exploratory/`, `analysis/`, `preprocessing/`, `tests/`
+  import from `src/`. `src/` imports from none of them.
+- **Paths come from `{{ package_name }}.config`.** Never `os.chdir` or hardcode `'../data/...'`.
+- **Branch → PR → review → merge.** Never commit a feature straight to `main` (see Git workflow).
+- **Before you finish: `pixi run check`** (ruff + pytest + conda-export freshness).
+
+---
+
+## Git workflow
+
+Every change — for humans **and agents** — follows branch → PR → review → merge:
+
+1. **Branch off `main`** for each feature/fix (`git checkout -b <short-name>`). Never commit
+   feature work directly to `main`.
+2. Make focused commits; keep the branch scoped to one change.
+3. **Open a PR** and let it be reviewed before merging — even for your own solo projects, the
+   PR is the review checkpoint and the record of *why* a change happened.
+4. `pixi run check` must pass before merge. CI runs it on every PR and reports a ✔/✗; to make
+   it a *hard* requirement, enable branch protection on the repo (a one-time GitHub setting).
+5. Merge via the PR, then delete the branch.
+
+**Agents: do not push to `main` and do not self-merge without the review step.** If asked to
+implement something, create a branch and open a PR; leave the merge decision to the human
+unless explicitly told otherwise.
+
+**No agent attribution in commits or PRs.** Write commit messages and PR titles/descriptions
+as normal authored text describing the change. Do **not** add AI/agent references — no
+"Generated with …", no "Co-Authored-By: …" trailers, no tool names or emojis signaling an
+assistant. History should read as the project's, not the tool's.
+
+---
+
+## Layout & the two tiers
+
+```
+src/{{ package_name }}/   THE LIBRARY — reusable logic, no run order
+  config.py               every path in one place
+  <domain>.py             your science, named for what it is (not dataset.py/features.py)
+  io/                     the ONE external-data layer — fetch + cache-on-first-use
+  plotting.py             shared plot helpers
+  data/                   small static package data (lookup tables, constants)
+{% if include_simulations %}simulations/            TIER 1: run models -> data/raw/
+{% endif %}preprocessing/          TIER 1: data/raw (+external) -> data/processed/  (ordered, expensive)
+analysis/               TIER 2: processed -> results (figures/tables); theory/ = data-free
+exploratory/            scratch # %% percent-format .py (clean diffs)
+tests/                  pytest, mirrors src/{{ package_name }}/
+docs/  archive/         docs & data notes / retired code (never run, never imported)
+figures/                OUTPUT — rendered figures (committed deliverables)
+data/                   DATASETS — raw/external/processed (gitignored)
+```
+
+## Code lifecycle (prototype → library → pipeline)
+
+Code matures by moving between folders; the structure encodes how far along work is.
+
+- Everything starts in **`exploratory/`** — prototype freely, nothing depends on it.
+- Reusable logic graduates to **`src/`** the moment it's worth reusing (used twice, or
+  stable and general). It becomes importable, named, shared.
+- A finished result graduates to **`analysis/`** (or `preprocessing/`) — a thin runnable
+  that imports `src/`, reads `data/processed/`, writes `figures/`. Now it's reproducible
+  and part of `pixi run all`.
+
+**The one rule that keeps it clean — dependencies point inward.** The library never
+depends on scratch or on a specific analysis. Not everything graduates; most exploratory
+work stays scratch or gets archived. But nothing you *rely on* should live only in
+`exploratory/` — if it matters, promote it.
+
+## Conventions
+
+- **Language: code and docs are always in English.** We may discuss in chat in another
+  language, but everything written into the repo — variable/function names, comments,
+  docstrings, commit messages, READMEs, and all documentation — stays in **English**, so the
+  work is legible to collaborators and reviewers regardless of the conversation language.
+
+- **`config.py` owns all paths.** `PROJ_ROOT`, `DATA_DIR` (override via `PROJECT_DATA`
+  env var), `RAW`, `EXTERNAL`, `PROCESSED`, `FIGURES`. Import these; never `os.chdir`.
+- **`io/` caches on first use.** Every fetcher: check cache → reuse, else download →
+  `to_netcdf` → return; `force=True` bypasses. One module per source. This prevents the
+  drift where one script assumes a local file and another re-downloads.
+- **Run order = pixi tasks, not folder numbers.** Numeric prefixes are a human signpost.
+  Leaf tasks run only themselves (`pixi run results` assumes data is built). Only `all`
+  chains stages in dependency order. Use `pixi run --skip-deps <task>` to ignore deps.
+- **Environment: pixi is the source of truth; conda is generated.** `pyproject.toml` +
+  `pixi.lock` define the env. `pixi run export-conda` regenerates `environment.yml` for
+  conda colleagues — never hand-edit it. `pixi run check` fails if it's stale.
+- **Interactive work: `# %%` scripts over `.ipynb`.** They diff and review cleanly and
+  import like modules. Pair to `.ipynb` only for narrative report notebooks (you may use
+  notebooks in `exploratory/` if you prefer).
+- **Style: ruff.** `pixi run format` to fix, `pixi run lint` to check. `exploratory/` and
+  `tests/` are intentionally lenient (see `[tool.ruff.lint.per-file-ignores]`).
+- **Figures are committed; heavy media is not.** `figures/` holds committed deliverables.
+  Animation frames go in **`figures/frames/<context>/`** (one subfolder per animation) and
+  the rendered video sits in `figures/<context>.mp4` — both are gitignored (`frames/` trees
+  and video extensions). Commit the stills and the animation script, not the frames/video.
+
+## Keep docs in sync (part of "done")
+
+Update documentation **in the same change** that alters behavior — never "later". Touch the
+one surface that matches the change, not a vague global doc:
+
+| When you... | Update |
+| --- | --- |
+| add/change a pipeline step | the **consumes/produces table** in that folder's `README.md` |
+| add a dataset to `data/` | the **data dictionary** in `docs/` (source, variables/units, coverage, processing) |
+| add or promote a module/function to `src/` | its **docstring** (purpose + units) |
+| change tasks, workflow, or deps | the **task table** here in `AGENTS.md` and `README.md` |
+
+Keep it **proportionate**: `exploratory/` scratch needs no docs; the library and the
+reproducible pipeline do. Rule of thumb — if someone (including future-you) would be
+surprised by this a month from now, document it where they'd look for it.
+
+## Common tasks
+
+| Command | Does |
+| --- | --- |
+| `pixi run setup` | (re)create gitignored artifacts: `CLAUDE.md`, skill symlinks, `data/` dirs |
+| `pixi run all` | full pipeline in order ({% if include_simulations %}simulate → {% endif %}preprocess → results) |
+| `pixi run results` | just that stage (assumes processed data exists) |
+| `pixi run test` | pytest |
+| `pixi run check` | lint + format-check + tests + conda-export freshness (the CI gate) |
+| `pixi run format` | auto-format with ruff |
+| `pixi add <pkg>` | add a dependency |
+
+## Skills
+
+Domain skills live in `.agents/skills/` (tool-neutral source of truth) and are symlinked
+into `.claude/skills` and `.codex/skills` by `pixi run setup`. See:
+`data-io-analysis`, `mapping-viz`, `ocean-physics`, `model-obs-workflows`.

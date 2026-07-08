@@ -1,0 +1,44 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Setup
+
+```bash
+pixi install
+pixi run setup          # CLAUDE.md, skill symlinks, and data/ dirs
+pixi run export-conda   # environment.yml for conda users (optional)
+```
+
+## Workflow
+
+Code matures by moving between folders — prototype in `exploratory/`, promote reusable logic
+to `src/{{ package_name }}/`, finalize results as thin runnables in `analysis/` /
+`preprocessing/`. **Dependencies point inward:** everything imports `src/`; `src/` imports
+nothing local. See [`AGENTS.md`](AGENTS.md) for the full guide.
+
+```bash
+pixi run all       # full pipeline{% if include_simulations %} (simulate → preprocess → results){% else %} (preprocess → results){% endif %}
+pixi run results   # just one stage (assumes data is built)
+pixi run check     # lint + format-check + tests + conda-export freshness
+pixi run format    # auto-format with ruff
+```
+
+## Layout
+
+| Path | Role |
+| --- | --- |
+| `src/{{ package_name }}/` | the library — reusable logic, imported everywhere |
+| `src/{{ package_name }}/io/` | external-data access, cache-on-first-use |
+{% if include_simulations %}| `simulations/` | Tier 1: run models → `data/raw/` |
+{% endif %}| `preprocessing/` | Tier 1: `data/raw` (+external) → `data/processed/` |
+| `analysis/` | Tier 2: processed → figures/tables (`theory/` = data-free) |
+| `exploratory/` | scratch `# %%` scripts |
+| `tests/` | pytest, mirrors the package |
+| `figures/` | rendered figures — committed deliverables |
+| `data/` | datasets: raw/external/processed (gitignored) |
+
+---
+
+<sub>Scaffolded with [project_template](https://github.com/iuryt/project_template). Pull
+template updates with `pixi exec copier update`.</sub>

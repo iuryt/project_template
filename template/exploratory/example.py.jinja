@@ -1,0 +1,18 @@
+# %% [markdown]
+# Scratch / experiments. Percent-format `.py` (jupytext) over `.ipynb`: it diffs and
+# reviews cleanly and imports like a normal module. Prototype freely here -- nothing
+# depends on `exploratory/`. When a function proves reusable, lift it into the package;
+# when a result is final, promote it to `analysis/`.
+#
+# (You may use notebooks here instead if you prefer.)
+
+# %%
+from {{ package_name }} import dynamics
+from {{ package_name }}.io import example_source
+
+# %%
+ds = example_source(n=32)  # downloads + caches under data/external on first call
+print(ds)
+
+# %%
+print("rms:", dynamics.rms(ds["value"].values))
