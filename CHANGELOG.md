@@ -33,3 +33,4 @@ _Everything below ships in the first release. When cutting `v0.1.0`, rename this
 - `package_name` validator: rejects non-identifier / non-lowercase names at generation.
 - Template test suite (`pixi run test`): unit tests for generation layout, conditionals, the
   validator, and no-leak of template-only files; wired into `template-ci`.
+- `AGENTS.md`: commits and PR messages must not include AI/agent attribution.
