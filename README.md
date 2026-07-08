@@ -21,7 +21,7 @@ cd my_new_project
 pixi install
 pixi run setup          # CLAUDE.md, skill symlinks, data/ dirs
 pixi run export-conda   # environment.yml for conda users
-git init && git add -A && git commit -m "Initial commit from project_template"
+git init -b main && git add -A && git commit -m "Initial commit from project_template"
 pixi run check          # ruff + pytest + conda-export freshness
 pixi run all            # toy pipeline runs green out of the box
 ```

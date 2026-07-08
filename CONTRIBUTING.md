@@ -30,7 +30,7 @@ cd /tmp/scratch
 pixi install
 pixi run setup
 pixi run export-conda
-git init && git add -A && git commit -m init
+git init -b main && git add -A && git commit -m init
 pixi run check   # ruff + pytest + conda-export freshness
 pixi run all     # toy pipeline must go green
 ```

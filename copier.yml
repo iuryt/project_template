@@ -12,7 +12,7 @@ _message_after_copy: |
     pixi install
     pixi run setup          # writes CLAUDE.md, skill symlinks, and data/ dirs
     pixi run export-conda   # writes environment.yml for conda users
-    git init && git add -A && git commit -m "Initial commit from project_template"
+    git init -b main && git add -A && git commit -m "Initial commit from project_template"
     pixi run check          # ruff + pytest + conda-export freshness
     pixi run all            # runs the toy pipeline end-to-end
 

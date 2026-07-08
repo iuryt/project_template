@@ -10,7 +10,7 @@ dependencies = []
 
 [build-system]
 build-backend = "hatchling.build"
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]  # >=1.27 for PEP 639 SPDX `license` expression
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
