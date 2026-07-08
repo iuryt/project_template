@@ -30,3 +30,6 @@ _Everything below ships in the first release. When cutting `v0.1.0`, rename this
 - `AGENTS.md` Git workflow: branch → PR → review → merge for every change (humans and agents);
   agents don't push to `main` or self-merge without review.
 - README: how to enable branch protection so the `check` gate is required before merge.
+- `package_name` validator: rejects non-identifier / non-lowercase names at generation.
+- Template test suite (`pixi run test`): unit tests for generation layout, conditionals, the
+  validator, and no-leak of template-only files; wired into `template-ci`.

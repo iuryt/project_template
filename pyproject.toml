@@ -1,0 +1,18 @@
+# The TEMPLATE repo's own dev environment (NOT copied into generated projects — generation
+# only reads the template/ subdirectory). Provides pytest + copier to test generation.
+[tool.pixi.workspace]
+name = "project-template-dev"
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "linux-64"]
+
+[tool.pixi.dependencies]
+python = ">=3.11"
+pytest = "*"
+copier = ">=9"
+git = "*"
+
+[tool.pixi.tasks]
+test = "pytest"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

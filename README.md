@@ -1,5 +1,8 @@
 # project_template
 
+[![template-ci](https://github.com/iuryt/project_template/actions/workflows/template-ci.yml/badge.svg)](https://github.com/iuryt/project_template/actions/workflows/template-ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A [Copier](https://copier.readthedocs.io/) template for **oceanography** projects — an
 opinionated, reproducible Python layout with a pixi environment, a code-lifecycle workflow
 (prototype → library → pipeline), agent instructions (`AGENTS.md`), and lab skills.
@@ -84,6 +87,12 @@ pixi exec copier update
 ## Requirements
 
 [pixi](https://pixi.sh) and [Copier](https://copier.readthedocs.io) (run via `pixi exec`).
+
+## Contributing
+
+Contributions welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md). Changes are tracked in [`CHANGELOG.md`](CHANGELOG.md).
+Run the template's own test suite with `pixi run test`.
 
 ## Citing
 

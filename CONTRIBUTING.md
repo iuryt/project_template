@@ -22,7 +22,15 @@ oceanography projects.
 
 ## Testing the template locally
 
-Generate a throwaway project and run its checks:
+Run the template's own test suite (generates projects with the Copier API and asserts on the
+output — layout, conditionals, the `package_name` validator, and that template-only files
+don't leak). It generates from the **committed** template, so commit first:
+
+```bash
+pixi run test
+```
+
+You can also generate a throwaway project by hand and run its checks:
 
 ```bash
 pixi exec copier copy --defaults -d project_name="Scratch" --vcs-ref=HEAD . /tmp/scratch
