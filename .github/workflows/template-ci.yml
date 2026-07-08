@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Copier reads git history; avoid shallow-clone warnings
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
           cache: true
@@ -31,10 +33,12 @@ jobs:
             args: "-d include_simulations=true -d data_storage=external -d data_path=/tmp/store"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Copier reads git history; avoid shallow-clone warnings
 
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          run-install: false  # template root has no manifest; just install the pixi CLI
+          run-install: false  # don't install the root dev env here; we only need the pixi CLI
 
       - name: Generate project from template
         run: >-
