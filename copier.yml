@@ -1,0 +1,83 @@
+_min_copier_version: "9.0.0"
+
+# Generated-project files live in template/; the repo root holds the template's OWN
+# README/LICENSE/CITATION (shown on GitHub, never copied into generated projects).
+_subdirectory: "template"
+
+_message_after_copy: |
+  ✅  Project "{{ project_name }}" created at {{ _copier_conf.dst_path }}
+
+  Bootstrap it:
+    cd {{ _copier_conf.dst_path }}
+    pixi install
+    pixi run setup          # writes CLAUDE.md, skill symlinks, and data/ dirs
+    pixi run export-conda   # writes environment.yml for conda users
+    git init && git add -A && git commit -m "Initial commit from project_template"
+    pixi run check          # ruff + pytest + conda-export freshness
+    pixi run all            # runs the toy pipeline end-to-end
+
+  Publish to GitHub (creates the remote and pushes; don't pre-init it on the website):
+    gh repo create {{ package_name }} --public --source=. --remote=origin --push
+    # use --private instead of --public to start private
+
+# ---------------------------------------------------------------------------
+# Questions
+# ---------------------------------------------------------------------------
+project_name:
+  type: str
+  help: Human-readable project name
+
+package_name:
+  type: str
+  help: Importable Python package name (lowercase, underscores)
+  default: "{{ project_name | lower | replace(' ', '_') | replace('-', '_') }}"
+
+author_name:
+  type: str
+  help: Author name
+  default: "iury simoes-sousa"
+
+author_email:
+  type: str
+  help: Author email
+  default: "iuryt@pm.me"
+
+description:
+  type: str
+  help: One-line project description
+  default: ""
+
+python_version:
+  type: str
+  help: Python version
+  default: "3.11"
+  choices:
+    - "3.11"
+    - "3.12"
+    - "3.13"
+
+license:
+  type: str
+  help: License
+  default: "MIT"
+  choices:
+    - "MIT"
+
+include_simulations:
+  type: bool
+  help: "Include a simulations/ stage (run models -> data/raw)?"
+  default: false
+
+data_storage:
+  type: str
+  help: "Where should the (gitignored) data/ live?"
+  default: "local"
+  choices:
+    "local (inside the repo)": "local"
+    "external path (symlinked)": "external"
+
+data_path:
+  type: str
+  help: "Parent dir for external storage (a <package_name>/data folder is created there and symlinked to ./data)"
+  default: "/path/to/storage"
+  when: "{{ data_storage == 'external' }}"

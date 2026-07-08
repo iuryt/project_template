@@ -1,0 +1,28 @@
+"""TIER 1 -- run a model -> data/raw.
+
+Run with: ``pixi run simulate``. Replace the toy generator with your model driver.
+"""
+
+import numpy as np
+import xarray as xr
+
+from {{ package_name }}.config import RAW
+
+
+def main():
+    RAW.mkdir(parents=True, exist_ok=True)
+
+    rng = np.random.default_rng(0)
+    x = np.linspace(0, 2 * np.pi, 100)
+    ds = xr.Dataset(
+        {"temperature": ("x", 10 + 2 * np.sin(x) + 0.1 * rng.standard_normal(100))},
+        coords={"x": x},
+    )
+
+    out = RAW / "model_output.nc"
+    ds.to_netcdf(out)
+    print(f"wrote {out}")
+
+
+if __name__ == "__main__":
+    main()

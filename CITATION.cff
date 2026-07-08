@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: project_template
+message: "If you use this template, please cite it using the metadata below."
+type: software
+authors:
+  - given-names: "Iury Tercio"
+    family-names: Simoes-Sousa
+    email: iuryt@pm.me
+    orcid: "https://orcid.org/0000-0002-2484-510X"
+repository-code: "https://github.com/iuryt/project_template"
+abstract: >-
+  A Copier template for reproducible oceanography projects: an opinionated src/
+  library + tiered data pipeline, a pixi environment, agent instructions
+  (AGENTS.md), and domain skills.
+keywords:
+  - oceanography
+  - reproducibility
+  - project-template
+  - copier
+  - pixi
+license: MIT
+version: 0.1.0
+date-released: "2026-07-07"
+# After the first Zenodo release, add the concept DOI (always points to the latest version):
+# doi: "10.5281/zenodo.XXXXXXX"

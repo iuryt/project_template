@@ -1,0 +1,33 @@
+"""TIER 1 -- data/raw (+external) -> data/processed.
+
+Run with: ``pixi run preprocess``. Runnable on its own: if no raw input exists yet
+it synthesizes a toy field, so a freshly generated project goes green immediately.
+Replace the toy logic with your real preprocessing.
+"""
+
+import numpy as np
+import xarray as xr
+
+from {{ package_name }}.config import PROCESSED, RAW
+
+
+def main():
+    PROCESSED.mkdir(parents=True, exist_ok=True)
+
+    raw_path = RAW / "model_output.nc"
+    if raw_path.exists():
+        ds = xr.open_dataset(raw_path)
+    else:
+        # No raw input yet -- synthesize so the pipeline is runnable end-to-end.
+        x = np.linspace(0, 2 * np.pi, 100)
+        ds = xr.Dataset({"temperature": ("x", 10 + 2 * np.sin(x))}, coords={"x": x})
+
+    ds["temperature_anom"] = ds["temperature"] - ds["temperature"].mean()
+
+    out = PROCESSED / "example.nc"
+    ds.to_netcdf(out)
+    print(f"wrote {out}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,11 @@
+from {{ package_name }} import config
+
+
+def test_proj_root_is_dir():
+    assert config.PROJ_ROOT.is_dir()
+
+
+def test_data_paths_hang_off_data_dir():
+    assert config.RAW.parent == config.DATA_DIR
+    assert config.PROCESSED.parent == config.DATA_DIR
+    assert config.FIGURES.name == "figures"

@@ -1,0 +1,48 @@
+# --- generated agent artifacts (recreated by `pixi run setup`) ---
+CLAUDE.md
+.claude/skills
+.codex/skills
+
+# --- datasets (root-anchored so src/<pkg>/data/ package data is NOT ignored) ---
+/data
+
+# --- large / ephemeral media (figures/ ITSELF is committed -- they're deliverables) ---
+# Videos and frame dumps (e.g. animation frames) are large and regenerable: keep them out.
+# Route throwaway frame sequences into a `frames/` subdir; drop a video in and it's ignored.
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+**/frames/
+
+# --- pixi ---
+.pixi/
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+
+# --- caches / tooling ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+
+# --- environments ---
+.env
+.venv
+venv/
+ENV/
+
+# --- OS / editor ---
+.DS_Store

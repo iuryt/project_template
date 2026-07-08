@@ -1,0 +1,84 @@
+[project]
+name = "{{ package_name }}"
+version = "0.1.0"
+description = "{{ description }}"
+readme = "README.md"
+license = "{{ license }}"
+authors = [{name = "{{ author_name }}", email = "{{ author_email }}"}]
+requires-python = ">= {{ python_version }}"
+dependencies = []
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["osx-arm64", "linux-64"]
+
+[tool.pixi.pypi-dependencies]
+{{ package_name }} = { path = ".", editable = true }
+
+[tool.pixi.dependencies]
+# Small green core: just what the stubs import + tooling. Fast to install, keeps
+# `pixi run all` / `pixi run check` green out of the box. Add the rest deliberately.
+python = "{{ python_version }}.*"
+numpy = "*"
+xarray = "*"
+netcdf4 = "*"
+matplotlib = "*"
+pytest = "*"
+ruff = "*"
+# Common next adds (see .agents/skills/):
+#   pixi add dask                 # out-of-core / parallel
+#   pixi add cartopy cmocean      # maps & colormaps
+#   pixi add gsw xgcm             # TEOS-10 & grid-aware operators
+#   pixi add xrft                 # spectral analysis
+#   pixi add xesmf                # regridding (heavy: ESMF/esmpy)
+#   pixi add earthaccess copernicusmarine argopy   # data access
+#   pixi add geopandas rioxarray regionmask        # GIS vector/raster
+
+[tool.pixi.tasks]
+# --- setup: (re)create gitignored artifacts. Run once after a fresh clone. ---
+setup-claude = "echo '@AGENTS.md' > CLAUDE.md"
+link-skills = "mkdir -p .claude .codex && ln -sfn ../.agents/skills .claude/skills && ln -sfn ../.agents/skills .codex/skills"
+{% if data_storage == "external" -%}
+link-data = "mkdir -p '{{ data_path }}/{{ package_name }}/data/raw' '{{ data_path }}/{{ package_name }}/data/external' '{{ data_path }}/{{ package_name }}/data/processed' && ln -sfn '{{ data_path }}/{{ package_name }}/data' data"
+{%- else -%}
+link-data = "mkdir -p data/raw data/external data/processed"
+{%- endif %}
+setup = { depends-on = ["setup-claude", "link-skills", "link-data"] }
+
+# --- quality gate: `pixi run check` is the single "is this repo healthy?" command ---
+lint = "ruff check ."
+format = "ruff format ."
+format-check = "ruff format --check ."
+test-python = "pytest"
+test = { depends-on = ["test-python"] }  # add "test-julia" here if the project grows a Julia side
+export-conda = "pixi workspace export conda-environment environment.yml"
+check-conda = "pixi workspace export conda-environment environment.yml && git diff --exit-code environment.yml"
+check = { depends-on = ["lint", "format-check", "test", "check-conda"] }
+
+# --- data pipeline: leaf tasks run ONLY themselves; `all` chains them in order ---
+{% if include_simulations -%}
+simulate = "python simulations/00_run.py"       # -> data/raw/
+{% endif -%}
+preprocess = "python preprocessing/00_preprocess.py"  # data/raw (+external) -> data/processed/
+results = "python analysis/make_results.py"           # data/processed -> figures/
+all = { depends-on = [{% if include_simulations %}"simulate", {% endif %}"preprocess", "results"] }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["archive"]
+
+[tool.ruff.lint]
+# Pragmatic core: pyflakes, a pycodestyle subset, isort, pyupgrade. Not the firehose.
+select = ["E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Scratch work and tests get slack -- they are not production code.
+"exploratory/**" = ["E402", "F401", "F811"]
+"tests/**" = ["F401"]

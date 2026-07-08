@@ -1,0 +1,45 @@
+name: template-ci
+
+# The TEMPLATE repo's own CI: generate a project from the template and make sure it
+# bootstraps and passes its checks. This catches PRs that break generation.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  generate-and-check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: default
+            args: ""
+          - name: sim-external
+            args: "-d include_simulations=true -d data_storage=external -d data_path=/tmp/store"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          run-install: false  # template root has no manifest; just install the pixi CLI
+
+      - name: Generate project from template
+        run: >-
+          pixi exec copier copy --defaults --vcs-ref=HEAD
+          -d project_name="CI ${{ matrix.name }}"
+          ${{ matrix.args }}
+          . ../generated
+
+      - name: Bootstrap and check the generated project
+        working-directory: ../generated
+        run: |
+          pixi install
+          pixi run setup
+          pixi run export-conda
+          git init -q
+          git add -A
+          git -c user.email=ci@example.com -c user.name=ci commit -qm "init"
+          pixi run check
+          pixi run all

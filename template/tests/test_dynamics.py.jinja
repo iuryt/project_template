@@ -1,0 +1,10 @@
+from {{ package_name }} import dynamics
+
+
+def test_rms_constant_magnitude():
+    # mean of squares is 9 -> rms 3
+    assert dynamics.rms([3.0, -3.0]) == 3.0
+
+
+def test_rms_zeros():
+    assert dynamics.rms([0.0, 0.0, 0.0]) == 0.0
