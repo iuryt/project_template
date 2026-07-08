@@ -17,7 +17,27 @@ source of truth; `CLAUDE.md` just imports it via `@AGENTS.md`.
 - **Dependencies point inward.** `exploratory/`, `analysis/`, `preprocessing/`, `tests/`
   import from `src/`. `src/` imports from none of them.
 - **Paths come from `{{ package_name }}.config`.** Never `os.chdir` or hardcode `'../data/...'`.
+- **Branch → PR → review → merge.** Never commit a feature straight to `main` (see Git workflow).
 - **Before you finish: `pixi run check`** (ruff + pytest + conda-export freshness).
+
+---
+
+## Git workflow
+
+Every change — for humans **and agents** — follows branch → PR → review → merge:
+
+1. **Branch off `main`** for each feature/fix (`git checkout -b <short-name>`). Never commit
+   feature work directly to `main`.
+2. Make focused commits; keep the branch scoped to one change.
+3. **Open a PR** and let it be reviewed before merging — even for your own solo projects, the
+   PR is the review checkpoint and the record of *why* a change happened.
+4. `pixi run check` must pass before merge. CI runs it on every PR and reports a ✔/✗; to make
+   it a *hard* requirement, enable branch protection on the repo (a one-time GitHub setting).
+5. Merge via the PR, then delete the branch.
+
+**Agents: do not push to `main` and do not self-merge without the review step.** If asked to
+implement something, create a branch and open a PR; leave the merge decision to the human
+unless explicitly told otherwise.
 
 ---
 

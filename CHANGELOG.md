@@ -27,3 +27,6 @@ _Everything below ships in the first release. When cutting `v0.1.0`, rename this
   `license`, `include_simulations`, `data_storage` (local/external), `data_path`.
 - `mapping-viz` skill guidance: perfect a single animation frame before rendering the full
   sequence.
+- `AGENTS.md` Git workflow: branch → PR → review → merge for every change (humans and agents);
+  agents don't push to `main` or self-merge without review.
+- README: how to enable branch protection so the `check` gate is required before merge.

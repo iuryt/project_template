@@ -34,6 +34,26 @@ gh repo create my_new_project --public --source=. --remote=origin --push
 # use --private instead of --public to start private
 ```
 
+### Require the `check` gate (branch protection)
+
+The generated CI runs `pixi run check` on every PR, but by default GitHub still lets you
+merge a red build. To make the branch → PR → review workflow *enforced* — no merging to
+`main` until `check` passes — turn on branch protection once per repo. It's free on public
+and private repos, and it's a single `gh` call:
+
+```bash
+gh api -X PUT repos/{owner}/my_new_project/branches/main/protection \
+  -F 'required_status_checks[strict]=true' \
+  -F 'required_status_checks[checks][][context]=check' \
+  -F 'enforce_admins=true' \
+  -F 'required_pull_request_reviews[required_approving_review_count]=0' \
+  -F 'restrictions='
+```
+
+(Or do it in the GitHub UI: **Settings → Branches → Add rule** → require status checks →
+select `check`.) Set `required_approving_review_count` to `1` if you also want a human
+approval before merge.
+
 ## Pull template improvements later
 
 Generated projects record their answers in `.copier-answers.yml`, so you can re-apply
