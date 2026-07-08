@@ -80,8 +80,12 @@ description: Publication-quality oceanographic figures — maps, sections, and H
   `savefig(fig, FIGURES / "name.png")`. Save vector (`.pdf`/`.svg`) for papers, `.png` for
   quick looks. Use `constrained_layout=True` for multi-panel.
 - **`figures/` is committed** — figures are deliverables and reviewers should see them change.
-- **Animations: always write frames to `figures/frames/<context>/`.** A project usually has
-  several animations, so give each its own **context subfolder** under `frames/`
+- **Animations: perfect ONE frame before rendering the sequence.** Build and iterate on a
+  single representative frame (fixed color limits, layout, annotations, colorbar) until it's
+  exactly right, *then* batch the full sequence. Rendering hundreds of frames only to spot a
+  bug in frame 1 is wasted time — validate first, mass-produce second.
+- **Always write frames to `figures/frames/<context>/`.** A project usually has several
+  animations, so give each its own **context subfolder** under `frames/`
   (`figures/frames/coastal_eddies/`, `figures/frames/basin_overturning/`, ...) — never dump
   loose frames. The whole `frames/` tree is gitignored.
 - **The rendered video sits in `figures/`**, named for its context

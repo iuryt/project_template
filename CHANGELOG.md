@@ -8,7 +8,8 @@ Generated projects can pull changes from newer template versions with `copier up
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-07-07
+_Everything below ships in the first release. When cutting `v0.1.0`, rename this heading to
+`## [0.1.0] - <date>` and start a fresh empty `## [Unreleased]` above it._
 
 ### Added
 
@@ -24,3 +25,5 @@ Generated projects can pull changes from newer template versions with `copier up
 - GitHub Actions CI in generated projects; ruff config; MIT license.
 - Questionnaire: `project_name`, `package_name`, author, `description`, `python_version`,
   `license`, `include_simulations`, `data_storage` (local/external), `data_path`.
+- `mapping-viz` skill guidance: perfect a single animation frame before rendering the full
+  sequence.
